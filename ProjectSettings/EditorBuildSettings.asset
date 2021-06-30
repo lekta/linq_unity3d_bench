@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/math_bench.unity
+    guid: 50b78ecefe5420849bb63f2d568c2c4c
   m_configObjects: {}

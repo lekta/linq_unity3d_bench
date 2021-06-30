@@ -6,7 +6,7 @@ using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
-namespace LinqBenchmark {
+namespace UnityBench {
     public class BenchController : MonoBehaviour {
 
         [SerializeField] private int _iterations = 10_000;
@@ -36,10 +36,71 @@ namespace LinqBenchmark {
 
             Debug.Log($"Bench prepared");
             Debug.Log(" \n");
+
+            Run_LinearBench();
         }
 
 
         public void Run_LinearBench() {
+            Debug.Log($"  Simple linear bench, {GetIterationsInfo()}");
+            float val = 0;
+            
+            long iters = 10_000_000; 
+            
+            _sw = Stopwatch.StartNew();
+            for (int i = 0; i < iters; i++) { }
+            Debug.Log($"Empty: <b>{_sw.ElapsedMilliseconds}</b> ms");
+
+            _sw = Stopwatch.StartNew();
+            for (int i = 0; i < iters; i++) {
+                val = val + .5f;
+            }
+            Debug.Log($"Add: <b>{_sw.ElapsedMilliseconds}</b> ms");
+            
+            _sw = Stopwatch.StartNew();
+            for (int i = 0; i < iters; i++) {
+                val = val - .5f;
+            }
+            Debug.Log($"Sub: <b>{_sw.ElapsedMilliseconds}</b> ms");
+            
+            _sw = Stopwatch.StartNew();
+            for (int i = 0; i < iters; i++) {
+                val = val * 1.5f;
+            }
+            Debug.Log($"Mul: <b>{_sw.ElapsedMilliseconds}</b> ms");
+
+            _sw = Stopwatch.StartNew();
+            for (int i = 0; i < iters; i++) {
+                val = val / 1.1f;
+            }
+            Debug.Log($"Div: <b>{_sw.ElapsedMilliseconds}</b> ms");
+
+            _sw = Stopwatch.StartNew();
+            for (int i = 0; i < iters; i++) {
+                if (val < 0) {
+                    val = 1f;
+                }
+            }
+            Debug.Log($"If: <b>{_sw.ElapsedMilliseconds}</b> ms");
+
+            _sw = Stopwatch.StartNew();
+            for (int i = 0; i < iters; i++) {
+                Method();
+            }
+            Debug.Log($"Call: <b>{_sw.ElapsedMilliseconds}</b> ms");
+
+            // _sw = Stopwatch.StartNew();
+            // for (int i = 0; i < iters; i++) {
+            //     Mathf.Approximately(val, 0f);
+            // }
+            // Debug.Log($"Approx: <b>{_sw.ElapsedMilliseconds}</b> ms");
+        }
+
+        private void Method() {
+            
+        }
+        
+        public void Run_LinearBench1() {
             Debug.Log($"  Simple linear bench, {GetIterationsInfo()}");
 
             _sw = Stopwatch.StartNew();
@@ -183,7 +244,6 @@ namespace LinqBenchmark {
             
             _chk += _heavyList
                .Select(v => v - 1)
-               .Reverse()
                .Where(v => v % 2 == 0)
                .Distinct()
                .Aggregate(0, (s, v) => s + v);
@@ -197,7 +257,6 @@ namespace LinqBenchmark {
             _chk += _heavyList
                .AsParallel()
                .Select(v => v - 1)
-               .Reverse()
                .Where(v => v % 2 == 0)
                .Distinct()
                .Aggregate(0, (s, v) => s + v);
@@ -210,6 +269,7 @@ namespace LinqBenchmark {
         public void RunAnalog_Any() => _linqAnalogs.Compare_Any();
 
         public void RunAnalog_Where() => _linqAnalogs.Compare_Where();
+        public void RunAnalog_GroupBy() => _linqAnalogs.Compare_GroupBy();
 
 
         private void ForOperation(string desc, Func<int, int> operation) {

@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using Debug = UnityEngine.Debug;
 
-namespace LinqBenchmark {
+namespace UnityBench {
     public class LinqAnalogs {
 
         private int _iterations;
@@ -66,29 +66,57 @@ namespace LinqBenchmark {
 
 
         public void Compare_Where() {
-            var result = new List<int>();
+            var output = new List<int>();
 
             _sw = Stopwatch.StartNew();
             for (int i = 0; i < _iterations; i++) {
-                result = new List<int>();
+                output = new List<int>();
 
                 for (int j = 0; j < _operations; j++) {
                     int v = _list[j];
 
                     if (v % 3 == 0) {
-                        result.Add(v);
+                        output.Add(v);
                         break;
                     }
                 }
             }
-            Debug.Log($"FirstOrDefault, for: {result.Count}, <b>{_sw.ElapsedMilliseconds}</b> ms");
+            Debug.Log($"FirstOrDefault, for: {output.Count}, <b>{_sw.ElapsedMilliseconds}</b> ms");
 
             _sw = Stopwatch.StartNew();
             for (int i = 0; i < _iterations; i++) {
-                result = _list.Where(v => v % 3 == 0).ToList();
+                output = _list.Where(v => v % 3 == 0).ToList();
             }
-            Debug.Log($"FirstOrDefault, linq: {result.Count}, <b>{_sw.ElapsedMilliseconds}</b> ms");
+            Debug.Log($"FirstOrDefault, linq: {output.Count}, <b>{_sw.ElapsedMilliseconds}</b> ms");
         }
 
+        public void Compare_GroupBy() {
+            int keys = 5;
+            var output = Enumerable.Range(0, keys).ToDictionary(i => i, _ => new List<int>());
+            
+            _sw = Stopwatch.StartNew();
+            for (int i = 0; i < _iterations; i++) {
+                for (int j = 0; j < output.Count; j++) {
+                    output[j].Clear();
+                }
+
+                for (int j = 0; j < _operations; j++) {
+                    int v = _list[j];
+
+                    int gIdx = v % keys;
+                    output[gIdx].Add(v);
+                }
+            }
+            Debug.Log($"FirstOrDefault, for: {output.Count}, <b>{_sw.ElapsedMilliseconds}</b> ms");
+
+            _sw = Stopwatch.StartNew();
+            for (int i = 0; i < _iterations; i++) {
+                output = _list.GroupBy(v => v % keys).ToDictionary(g => g.Key, g => g.ToList());
+            }
+            Debug.Log($"FirstOrDefault, linq: {output.Count}, <b>{_sw.ElapsedMilliseconds}</b> ms");
+            
+            
+        } 
+        
     }
 }
